@@ -1,0 +1,4 @@
+name: DestinyQuests
+main: me.rysiek21.destinyquests.Main
+version: 1.0
+commands:

@@ -1,0 +1,19 @@
+quests:
+  example:
+    Stages: 2
+    1:
+      NPC-ID: 13
+      delay: 100
+      Messages:
+        - "&7Tekst"
+        - "&7Drugi tekst"
+    2:
+      NPC-ID: 14
+      Messages:
+        - "&7Tekst2"
+  example2:
+    Stages: 1
+    1:
+      NPC-ID: 12
+      Messages:
+        - "&7Tekst3"
