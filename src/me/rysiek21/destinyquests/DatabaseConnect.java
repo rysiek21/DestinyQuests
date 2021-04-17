@@ -5,8 +5,10 @@ import java.sql.*;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class DatabaseConnect {
+	
 	String host, port, database, username, password;
     static Connection connection;
+    
     public void MysqlConnect() {
     	FileConfiguration config = Main.getConfigFile();
     	host = config.getString("mysql.host");
@@ -21,6 +23,7 @@ public class DatabaseConnect {
             e.printStackTrace();
         }
     }
+    
     void OpenConnection() throws SQLException, ClassNotFoundException {
         if (connection != null && !connection.isClosed()) {
             return;
@@ -31,11 +34,12 @@ public class DatabaseConnect {
                 this.username, this.password);
         InitialiseDatabase();
     }
+    
     public void InitialiseDatabase() throws SQLException {
     	try {
     		System.out.println("[DestinyQuests] Initialising database");
     		Statement statement = connection.createStatement();
-        	statement.executeUpdate("CREATE TABLE IF NOT EXISTS `destinyquests` (`UUID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL);");
+        	statement.executeUpdate("CREATE TABLE IF NOT EXISTS `destinyquests` (`UUID` varchar(50) NOT NULL);");
         	FileConfiguration config = Main.getConfigFile();
         	config.getConfigurationSection("quests").getKeys(false).forEach(quest ->{
         		try {
@@ -53,12 +57,13 @@ public class DatabaseConnect {
             e.printStackTrace();
         }
     }
+    
     public void AddNewPlayer(String uuid) throws SQLException {
     	try {
             Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM destinyquests WHERE UUID = '" + uuid + "';");
+            ResultSet result = statement.executeQuery("SELECT * FROM `destinyquests` WHERE UUID = '" + uuid + "';");
             if(!result.next()) {
-                PreparedStatement prp = connection.prepareStatement("INSERT INTO destinyquests (UUID) VALUES (?)");
+                PreparedStatement prp = connection.prepareStatement("INSERT INTO `destinyquests` (UUID) VALUES (?)");
                 prp.setString(1, uuid);
                 prp.executeUpdate();
             }
@@ -66,4 +71,29 @@ public class DatabaseConnect {
             e.printStackTrace();
         }
     }
+    
+    public String GetPlayerQuest(String uuid, String quest) throws SQLException {
+    	try {
+			Statement statement = connection.createStatement();
+			ResultSet result = statement.executeQuery("SELECT `"+ quest +"` FROM `destinyquests` WHERE UUID = '" + uuid + "';");
+			if(result.next()) {
+				return result.getString(quest);
+			}
+		} catch (SQLException e) {
+            e.printStackTrace();
+        }
+    	return null;
+    }
+    
+    public void SetPlayerQuest(String uuid, String quest, String stage) {
+		try {
+			PreparedStatement prp = connection.prepareStatement("UPDATE `destinyquests` SET ? = ? WHERE uuid = ?");
+			prp.setString(1, quest);
+			prp.setString(2, stage);
+			prp.setString(3, uuid);
+			prp.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 }
