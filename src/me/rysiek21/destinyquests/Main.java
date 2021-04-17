@@ -1,6 +1,5 @@
 package me.rysiek21.destinyquests;
 
-import me.rysiek21.destinyquests.PluginListeners;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.Listener;
@@ -16,9 +15,11 @@ public class Main extends JavaPlugin {
 	public void onEnable() {
 		System.out.println("[DestinyQuests] Running version 1.0");
 		plugin = (Plugin) this;
-		config = this.getConfig();
 		this.saveDefaultConfig();
+		config = this.getConfig();
 		registerEvents(this, new PluginListeners());
+		DatabaseConnect db = new DatabaseConnect();
+		db.MysqlConnect();
 	}
 	
 	public static void registerEvents(org.bukkit.plugin.Plugin plugin, Listener... listeners) {

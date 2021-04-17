@@ -9,7 +9,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.npc.NPC;
 import net.md_5.bungee.api.ChatMessageType;
@@ -26,17 +25,22 @@ public class PluginListeners implements Listener {
 			for(int i=1;i<=config.getInt("quests." + quest + ".Stages");i++) {
 				if(npc.getId() == config.getInt("quests." + quest + "." + i + ".NPC-ID")) {
 					List<String> messages = config.getStringList("quests." + quest + "." + i + ".Messages");
+					List<String> allMess = config.getStringList("quests." + quest + "." + i + ".Messages");
 					new BukkitRunnable() {
 							
 						@Override
 						public void run() {
 							String actionBarMessage = messages.get(0);
-							actionBarMessage.replace('&', '§');
+							actionBarMessage = actionBarMessage.replace('&', '§');
 							p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
-							p.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.get(0)));
 							messages.remove(0);
 							if(messages.size() == 0) {
-								cancel();
+								for (String x : allMess) {
+									p.sendMessage(ChatColor.translateAlternateColorCodes('&', x));
+									if(x==allMess.get(allMess.size()-1)) {
+										cancel();
+									}
+								}
 							}
 						}
 					}.runTaskTimer(Main.getPlugin(), 0L ,config.getInt("quests." + quest + "." + i + ".delay"));
