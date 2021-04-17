@@ -1,5 +1,6 @@
 package me.rysiek21.destinyquests;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.bukkit.ChatColor;
@@ -7,6 +8,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import net.citizensnpcs.api.event.NPCRightClickEvent;
@@ -15,6 +17,13 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class PluginListeners implements Listener {
+	
+	@EventHandler
+	private void PlayerJoin(PlayerJoinEvent e) throws SQLException {
+		Player p = e.getPlayer();
+		DatabaseConnect db = new DatabaseConnect();
+		db.AddNewPlayer(String.valueOf(p.getUniqueId()));
+	}
 	
 	@EventHandler
 	void RightClickOnCitizen(NPCRightClickEvent e) {
