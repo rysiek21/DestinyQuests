@@ -28,31 +28,40 @@ public class PluginListeners implements Listener {
 	@EventHandler
 	void RightClickOnCitizen(NPCRightClickEvent e) {
 		FileConfiguration config = Main.getConfigFile();
+		DatabaseConnect db = new DatabaseConnect();
 		Player p = e.getClicker();
 		NPC npc = e.getNPC();
 		config.getConfigurationSection("quests").getKeys(false).forEach(quest ->{
 			for(int i=1;i<=config.getInt("quests." + quest + ".Stages");i++) {
-				if(npc.getId() == config.getInt("quests." + quest + "." + i + ".NPC-ID")) {
-					List<String> messages = config.getStringList("quests." + quest + "." + i + ".Messages");
-					List<String> allMess = config.getStringList("quests." + quest + "." + i + ".Messages");
-					new BukkitRunnable() {
-							
-						@Override
-						public void run() {
-							String actionBarMessage = messages.get(0);
-							actionBarMessage = actionBarMessage.replace('&', '§');
-							p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
-							messages.remove(0);
-							if(messages.size() == 0) {
-								for (String x : allMess) {
-									p.sendMessage(ChatColor.translateAlternateColorCodes('&', x));
-									if(x==allMess.get(allMess.size()-1)) {
-										cancel();
+				try {
+					String questStage = db.GetPlayerQuest(String.valueOf(p.getUniqueId()), quest);
+					if (i == Integer.parseInt(questStage)) {
+						if(npc.getId() == config.getInt("quests." + quest + "." + i + ".NPC-ID")) {
+							db.SetPlayerQuest(String.valueOf(p.getUniqueId()), quest, String.valueOf(Integer.parseInt(questStage)+1));
+							List<String> messages = config.getStringList("quests." + quest + "." + i + ".Messages");
+							List<String> allMess = config.getStringList("quests." + quest + "." + i + ".Messages");
+							new BukkitRunnable() {
+									
+								@Override
+								public void run() {
+									String actionBarMessage = messages.get(0);
+									actionBarMessage = actionBarMessage.replace('&', '§');
+									p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(actionBarMessage));
+									messages.remove(0);
+									if(messages.size() == 0) {
+										for (String x : allMess) {
+											p.sendMessage(ChatColor.translateAlternateColorCodes('&', x));
+											if(x==allMess.get(allMess.size()-1)) {
+												cancel();
+											}
+										}
 									}
 								}
-							}
-						}
-					}.runTaskTimer(Main.getPlugin(), 0L ,config.getInt("quests." + quest + "." + i + ".delay"));
+							}.runTaskTimer(Main.getPlugin(), 0L ,config.getInt("quests." + quest + "." + i + ".delay"));
+						}	
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace();
 				}
 			}
 		});

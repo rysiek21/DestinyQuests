@@ -47,7 +47,7 @@ public class DatabaseConnect {
         			ResultSet result = meta.getColumns(null, null, "destinyquests", quest);
         			if (!result.next()) {
         				statement.executeUpdate("ALTER TABLE `destinyquests`"
-        						+ "ADD COLUMN `" + quest + "` VARCHAR(4) NOT NULL DEFAULT '0';");
+        						+ "ADD COLUMN `" + quest + "` VARCHAR(4) NOT NULL DEFAULT '1';");
         			}
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -87,11 +87,8 @@ public class DatabaseConnect {
     
     public void SetPlayerQuest(String uuid, String quest, String stage) {
 		try {
-			PreparedStatement prp = connection.prepareStatement("UPDATE `destinyquests` SET ? = ? WHERE uuid = ?");
-			prp.setString(1, quest);
-			prp.setString(2, stage);
-			prp.setString(3, uuid);
-			prp.executeUpdate();
+			Statement statement = connection.createStatement();
+			statement.executeUpdate("UPDATE `destinyquests` SET " + quest + " = '" + stage + "' WHERE UUID = '" + uuid + "'");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
